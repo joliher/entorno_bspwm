@@ -1,1 +1,1 @@
-
+Ruta del archivo -> ~/.config/

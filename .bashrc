@@ -1,6 +1,3 @@
-# Configuración de ble.sh
-# [[ $- == *i* ]] && source ~/.local/share/blesh/ble.sh --noattach
-
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
@@ -127,9 +124,3 @@ fi
 
 # Configuración de Starship
 eval "$(starship init bash)"
-
-# Configuración de ble.sh
-# [[ ! ${BLE_VERSION-} ]] || ble-attach
-
-export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
-export PATH=$JAVA_HOME/bin:$PATH

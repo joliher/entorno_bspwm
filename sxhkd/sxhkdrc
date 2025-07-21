@@ -4,17 +4,26 @@ super + Return
 
 # Abrir firefox
 super + f
-	firefox & >/dev/null 2>&1
+	firefox & >/dev/null 2>&1 disown
 
-# Bloquear la pantalla
-super + shift + l
-	bash /home/jose/.config/i3lock/lock.sh
+# Abrir thunar
+super + e
+	thunar
+
+# Hacer capturas de pantalla
+shift + super + s
+	flameshot gui
+
+# Cambiar entre ventanas
+alt + Tab
+	rofi -show window
 
 # program launcher
 # super + @space
 #	dmenu_run
 
 # Recargar ficheros de configuración de sxhkd
+# Va como quiere
 super + Escape
 	pkill -USR1 -x sxhkd
 
@@ -27,6 +36,7 @@ super + shift + q
     bspc quit
 
 # Reiniciar bspwm
+# Va como quiere
 super + shift + r
     bspc wm -r
 
@@ -43,7 +53,7 @@ super + shift + {Left,Down,Up,Right}
 	bspc node -f {west,south,north,east}
 
 # Cambiar de escritorio
-ctrl + shift + {1-5}
+super + {1-5}
     bspc desktop -f ^{1-5}
 
 #

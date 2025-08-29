@@ -1,2 +1,5 @@
 #!/bin/bash
-polybar top &
+polybar topleft &
+polybar topcenter &
+polybar topright &
+polybar bottomright &

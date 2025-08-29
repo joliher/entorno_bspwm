@@ -1,3 +1,7 @@
+####################
+# Atajos genéricos #
+####################
+
 # Abrir la kitty
 super + Return
 	/usr/bin/kitty
@@ -16,27 +20,25 @@ shift + super + s
 
 # Cambiar entre ventanas
 alt + Tab
-	rofi -show window
+	rofi -show window -show-icons
 
-# program launcher
-# super + @space
-#	dmenu_run
+# Lanzador de apps
+super + d
+	rofi -show drun -show-icons -b
 
 # Recargar ficheros de configuración de sxhkd
-# Va como quiere
 super + Escape
 	pkill -USR1 -x sxhkd
 
-#
-# Accesos rápidos sobre bspwm 
-#
+###############################
+# Accesos rápidos sobre bspwm #
+###############################
 
 # Salir de bspwm
 super + shift + q
     bspc quit
 
 # Reiniciar bspwm
-# Va como quiere
 super + shift + r
     bspc wm -r
 
@@ -44,9 +46,9 @@ super + shift + r
 alt + F4
 	bspc node -{c,k}
 
-#
-# focus/swap
-#
+##############
+# focus/swap #
+##############
 
 # Cambiar de ventana
 super + shift + {Left,Down,Up,Right}
@@ -56,9 +58,9 @@ super + shift + {Left,Down,Up,Right}
 super + {1-5}
     bspc desktop -f ^{1-5}
 
-#
-# Preselectores
-#
+#################
+# Preselectores #
+#################
 
 # Preseleccionar una dirección
 ctrl + shift + {Left,Down,Up,Right}
@@ -68,9 +70,9 @@ ctrl + shift + {Left,Down,Up,Right}
 ctrl + shift + space
 	bspc node -p cancel
 
-#
-# Resizear
-# 
+############
+# Resizear #
+############
 
 # Expandir una ventana
 super + alt + {Left,Down,Up,Right}

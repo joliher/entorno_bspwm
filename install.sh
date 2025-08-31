@@ -8,14 +8,13 @@ fi
 ###########################
 # Definición de variables #
 ###########################
-usuario=$(logname)
-home_usuario=$(grep "^jose:" /etc/passwd | cut -d: -f6)
 
-programas=('bspwm' 'sxhkd' 'kitty' 'picom' 'polybar' 'tmux' 'pulseaudio' 'curl' 'git')
+usuario=$(logname)
+programas=('bspwm' 'sxhkd' 'kitty' 'picom' 'polybar' 'tmux' 'pulseaudio' 'curl' 'git' 'lightdm' 'lightdm-gtk-greeter')
 programas_no_apt=('starship')
 opcional=('tar' 'bzip2' 'wget')
 
-function install_check () {
+function install_proceed () {
   read -p "Deseas proseguir con la instalación? y/N: " quest1
 
   if [ "${quest1,,}" != "y" ]; then
@@ -34,20 +33,20 @@ function install_check () {
 
 function check_programs () {
 	por_instalar=()
-	check_program=0
+	error=0
 
 	for i in ${programas[@]}; do
 		if ! dpkg -l $i &>/dev/null; then
 			por_instalar+=("$i")
-			check_program=1
+			error=1
 		fi
 	done
 	if ! which starship &>/dev/null; then
 		por_instalar+=('starship')
-		check_program=1
+		error=1
 	fi
 
-	if [ $check_program -eq 1 ]; then
+	if [ $error -eq 1 ]; then
 		return 1
 	fi
 	
@@ -75,80 +74,85 @@ while true; do
 
   case $opt in
 	1)
-		echo "Se van a instalar los siguientes programas:"
-		for i in ${programas[@]}; do
-			echo -e " -$i"
-		done
-		for i in ${programas_no_apt[@]}; do
-			echo -e " -$i"
-		done
+	  echo "Se van a instalar los siguientes programas:"
+	  for i in ${programas[@]}; do
+		echo -e " -$i"
+	  done
+	  for i in ${programas_no_apt[@]}; do
+		echo -e " -$i"
+	  done
 
-		if install_check; then
-			apt install ${programas[@]} ${opcional[@]}
-			# Instalación de starship
-			if ! which starship &>/dev/null; then
-				curl -sS https://starship.rs/install.sh | sh
-			else
-				echo "Starship ya se encuentra instalado"
-			fi
+	  if install_proceed; then
+		apt install ${programas[@]} ${opcional[@]}
+		# Instalación de starship
+		if ! which starship &>/dev/null; then
+			curl -sS https://starship.rs/install.sh | sh
+		else
+			echo "Starship ya se encuentra instalado"
 		fi
-
+	  fi
 		;;
 	2)
-		echo "Se van a instalar los siguientes programas:"
-		for i in ${opcional[@]}; do
-			echo -e " -$i"
-		done
+	  echo "Se van a instalar los siguientes programas:"
+	  for i in ${opcional[@]}; do
+		echo -e " -$i"
+	  done
 
-		if install_check; then
-			apt install ${opcional[@]}
-		fi
-
+	  if install_proceed; then
+		apt install ${opcional[@]}
+	  fi
 		;;
 	3)
-		if ! check_programs; then
-			echo "Faltan programas por instalar"
-			break
-		fi
-
-		cd /tmp && git clone https://github.com/joliher/entorno_bspwm &>/dev/null
-		ruta_repo=/tmp/entorno_bspwm
-		chown -R $usuario: $ruta_repo && chmod ug+x $ruta_repo/.scripts/*
-	  
-	  # Configuración de bspwm
-	  	mkdir -p $home_usuario/.config/bspwm/
-		chmod +x $ruta_repo/bspwm/bspwmrc
-		mv $ruta_repo/bspwm/* $home_usuario/.config/bspwm/
-
-	  # Configuración de sxhkd
-		mkdir -p $home_usuario/.config/sxhkd/
-		mv $ruta_repo/sxhkd/* $home_usuario/.config/sxhkd/
-
-	  # Configuración de kitty
-	  	mv $ruta_repo/kitty/* $home_usuario/.config/
-
-	  # Configuración de picom
-		mv $ruta_repo/picom/* $home_usuario/.config/
-
-	  # Configuración de polybar
-		mv $ruta_repo/polybar/* /etc/polybar/
-
-	  # Configuración de starship
-	  if ! grep -qw 'eval "$(starship init bash)"' ~/.bashrc
-	  then
-		echo "#Configuración de starship" >> ~/.bashrc
-		echo -e 'eval "$(starship init bash)" \n' >> ~/.bashrc
-		echo "Starship configurado"
+	  if ! check_programs; then
+		echo "Faltan programas por instalar"
+		break
 	  fi
 
+sudo -u "$usuario" bash << 'EOF'
+	
+	  # Preparación
+		cd /tmp && git clone https://github.com/joliher/entorno_bspwm &>/dev/null
+		ruta_repo=/tmp/entorno_bspwm
+	  
+	  # Configuración de bspwm
+		mkdir $HOME/.config/bspwm/ &>/dev/null
+		mv $ruta_repo/bspwm/* $HOME/.config/bspwm/
+		chmod +x $HOME/.config/bspwm/bspwmrc
+
+	  # Configuración de sxhkd
+	  	mkdir $HOME/.config/sxhkd/ &>/dev/null
+		mv $ruta_repo/sxhkd/* $HOME/.config/sxhkd/
+
+	  # Configuración de kitty
+		mv $ruta_repo/kitty/* $HOME/.config/
+
+	  # Configuración de picom
+		mv $ruta_repo/picom/* $HOME/.config/
+
+	   # Configuración de starship
+		if ! grep -qw 'eval "$(starship init bash)"' ~/.bashrc; then
+		  echo "#Configuración de starship" >> ~/.bashrc
+		  echo -e 'eval "$(starship init bash)" \n' >> ~/.bashrc
+		  echo "Starship configurado"
+		fi
+
 	  # Configuración de tmux
-		mv $ruta_repo/tmux/* $home_usuario/
+		mv $ruta_repo/tmux/* $HOME/
 
 	  # Scripts
-	  	mkdir -p $home_usuario/.scripts/ 
-		mv $ruta_repo/.scripts/* $home_usuario/.scripts/
+	  	mkdir $HOME/.scripts/ &>/dev/null
+		mv $ruta_repo/.scripts/* $HOME/.scripts/
+		chmod ug+x $HOME/.scripts/*
 	
-	  rm -rf $ruta_repo
+EOF
+
+	  # Configuración de polybar
+		mv /tmp/entorno_bspwm/polybar/* /etc/polybar/
+
+	  # Limpieza
+		rm -rf /tmp/entorno_bspwm/ &>/dev/null
+
+
 		;;
 	4)
 

@@ -26,7 +26,7 @@ function install_proceed () {
 	return 1
   else
 	read -p "Deseas proseguir con la instalación? (double check) y/N: " quest2
-  	if [ "${quest2,,}" != "y" ]; then
+	if [ "${quest2,,}" != "y" ]; then
 		echo "Abortando..."
 		return 1
 	fi
@@ -37,6 +37,7 @@ function install_proceed () {
 }
 
 function clear_screen () {
+	echo
 	read -n1 -s -p "Presione una tecla para continuar..."
 	clear
 }
@@ -59,7 +60,7 @@ while true; do
   echo "=============================="
 
   read -p "Elige una opción [1-6]: " opt
-  echo ""
+  echo
 
   case $opt in
 	1)
@@ -97,10 +98,10 @@ while true; do
 	error=0
 	echo "Comprobando disponibilidad de los programas..."
 	  for i in ${programas[@]}; do
-		  if ! command -v $i &>/dev/null; then
-		  	error=1
+		if ! command -v $i &>/dev/null; then
+			error=1
 			break
-		  fi
+		fi
 	  done
 	  if [ $error -eq 1 ]; then
 		echo "Faltan programas por instalar. NO se procederá a la configuración."
@@ -118,7 +119,7 @@ while true; do
 		ruta_repo=$(pwd)
 		POST_CLEAN=false
 	  else
-	  	cd /tmp && git clone https://github.com/joliher/entorno_bspwm &>/dev/null
+		cd /tmp && git clone https://github.com/joliher/entorno_bspwm &>/dev/null
 		ruta_repo=/tmp/entorno_bspwm
 		POST_CLEAN=true
 	  fi
@@ -136,7 +137,7 @@ while true; do
 	  else
 		echo "El directorio $ruta_repo/bspwm/ no existe. BSPWM no se configurará."
 	  fi
-	echo ""
+	echo
 
 	# Configuración de sxhkd
 	echo "Configurando SXHKD..."
@@ -149,9 +150,9 @@ while true; do
 			error=1
 		fi
 	  else
-		  echo "El directorio $ruta_repo/sxhkd/ no existe. SXHKD no se configurará."
+		echo "El directorio $ruta_repo/sxhkd/ no existe. SXHKD no se configurará."
 	  fi
-	echo ""
+	echo
 
 	# Configuración de kitty
 	echo "Configurando KITTY..."
@@ -165,7 +166,7 @@ while true; do
 	  else
 		echo "El directorio $ruta_repo/kitty/ no existe. KITTY no se configurará."
 	  fi
-	echo ""
+	echo
 
 	# Configuración de picom
 	echo "Configurando picom..."
@@ -179,7 +180,7 @@ while true; do
 	  else
 		echo "El directorio $ruta_repo/picom/ no existe. PICOM no se configurará."
 	  fi
-	echo ""
+	echo
 
 	# Configuración de polybar
 	echo "Configurando POLYBAR..."
@@ -190,7 +191,7 @@ while true; do
 		echo "La configuración de POLYBAR no se ha podido copiar correctamente."
 		error=1
 	  fi
-	echo ""
+	echo
 
 	# Configuración de starship
 	echo "Configurando STARSHIP..."
@@ -201,7 +202,7 @@ while true; do
 	  else
 		echo "STARSHIP ya se encuentra configurado. No se realizará ninguna acción adicional."
 	  fi
-	echo ""
+	echo
 
 	# Configuración de tmux
 	echo "Configurando TMUX..."
@@ -215,7 +216,7 @@ while true; do
 	  else
 		echo "El directorio $ruta_repo/tmux/ no existe. TMUX no se configurará."
 	  fi
-	echo ""
+	echo
 
 	# Scripts
 	echo "Configurando SCRIPTS..."
@@ -230,55 +231,53 @@ while true; do
 	  else
 		echo "El directorio $ruta_repo/.scripts/ no existe. Los SCRIPTS no se configurarán."
 	  fi
-	echo ""
+	echo
 	
 	  if [ $error -eq 1 ]; then
-		  echo "Compruebe los permisos de escritura y vuelva a intentarlo."
-		  echo ""
+		echo "Compruebe los permisos de escritura y vuelva a intentarlo." && echo
 	  fi
 
 	# Limpieza
 	  if [ $POST_CLEAN == "true" ]; then
-		  echo "Eliminando repositorio temporal..."
-		  rm -rf /tmp/entorno_bspwm/ &>/dev/null
-		  echo "Hecho."
+		echo "Eliminando repositorio temporal..."
+		rm -rf /tmp/entorno_bspwm/ &>/dev/null
+		echo "Hecho."
 	  fi
 	clear_screen
-	  	;;
+		;;
 	4)
 	echo "Estado de los programas PRINCIPALES que componen el entorno: "
 	  for i in ${programas[@]}; do
-		  prog_path=$(command -v $i)
-		  if [ ! -z $prog_path ]; then
+		prog_path=$(command -v $i)
+		if [ ! -z $prog_path ]; then
 			echo "$i se encuentra instalado en $prog_path"
-		  else
+		else
 			echo "$i no se encuentra instalado o no se encuentra en \$PATH"
-		  fi
+		fi
 	  done
 	clear_screen
 		;;
 	5)
 	echo "===================================="
-        echo " Programas principales y sus rutas "
-        echo "===================================="
-        echo
-
-          declare -A rutas
-          rutas=(
-            [bspwm]="$HOME/.config/bspwm/"
-            [sxhkd]="$HOME/.config/sxhkd/"
-            [kitty]="$HOME/.config/kitty/"
-            [picom]="$HOME/.config/picom/"
-	    [polybar]="/etc/polybar/ (global)"
-	    [starship]="~/.bashrc (se inicializa aqui)"
-            [tmux]="$HOME/.tmux.conf"
-          )
-
-          for prog in ${!rutas[@]}; do
-            echo " $prog → ${rutas[$prog]}"
-          done
-	echo " scripts → $HOME/.scripts/"
+	echo " Programas principales y sus rutas "
+	echo "===================================="
 	echo
+
+	declare -A rutas
+	rutas=(
+	  [bspwm]="$HOME/.config/bspwm/"
+	  [sxhkd]="$HOME/.config/sxhkd/"
+	  [kitty]="$HOME/.config/kitty/"
+	  [picom]="$HOME/.config/picom/"
+	  [polybar]="/etc/polybar/ (global)"
+	  [starship]="~/.bashrc (se inicializa aqui)"
+	  [tmux]="$HOME/.tmux.conf"
+	)
+
+	for prog in ${!rutas[@]}; do
+		echo " $prog → ${rutas[$prog]}"
+	done
+	echo " scripts → $HOME/.scripts/"
 	clear_screen
 		;;
 	6)
@@ -291,5 +290,5 @@ while true; do
   esac
 done
 
-echo ""
+echo
 

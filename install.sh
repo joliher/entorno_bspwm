@@ -120,6 +120,9 @@ while true; do
 		ruta_repo=$(pwd)
 		POST_CLEAN=false
 	  else
+		if [ -d /tmp/entorno_bspwm/ ]; then
+			rm -rf /tmp/entorno_bspwm/
+		fi
 		cd /tmp && git clone https://github.com/joliher/entorno_bspwm &>/dev/null
 		ruta_repo=/tmp/entorno_bspwm
 		POST_CLEAN=true

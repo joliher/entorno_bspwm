@@ -18,21 +18,21 @@ while [ $# -gt 0 ]; do
 done  
 
 
-function install_proceed () {
-  read -p "Deseas proseguir con la instalación? y/N: " quest1
+function continue_check () {
+  read -p "Deseas proseguir? y/N: " quest1
 
   if [ "${quest1,,}" != "y" ]; then
 	echo "Abortando..."
 	return 1
   else
-	read -p "Deseas proseguir con la instalación? (double check) y/N: " quest2
+	read -p "¿Estás seguro? (double check) y/N: " quest2
 	if [ "${quest2,,}" != "y" ]; then
 		echo "Abortando..."
 		return 1
 	fi
   fi
 
-  echo "Procediendo a la instalación..."
+  echo "Procediendo..."
   return 0
 }
 
@@ -56,10 +56,11 @@ while true; do
   echo "3) Configurar entorno"
   echo "4) Comprobar instalaciones"
   echo "5) Ver configuración"
-  echo "6) Salir"
+  echo "6) Eliminar entorno"
+  echo "7) Salir"
   echo "=============================="
 
-  read -p "Elige una opción [1-6]: " opt
+  read -p "Elige una opción [1-7]: " opt
   echo
 
   case $opt in
@@ -72,10 +73,10 @@ while true; do
 		echo -e " -$i"
 	  done
 
-	  if install_proceed; then
+	  if continue_check; then
 		sudo apt install ${programas[@]}
 		# Instalación de starship
-		if ! which starship &>/dev/null; then
+		if ! command -v starship &>/dev/null; then
 			curl -sS https://starship.rs/install.sh | sh
 		else
 			echo "Starship ya se encuentra instalado"
@@ -89,7 +90,7 @@ while true; do
 		echo -e " -$i"
 	  done
 
-	  if install_proceed; then
+	  if continue_check; then
 		sudo apt install ${opcional[@]}
 	  fi
 	clear_screen
@@ -268,7 +269,7 @@ while true; do
 	  [bspwm]="$HOME/.config/bspwm/"
 	  [sxhkd]="$HOME/.config/sxhkd/"
 	  [kitty]="$HOME/.config/kitty/"
-	  [picom]="$HOME/.config/picom/"
+	  [picom]="$HOME/.config/picom.conf"
 	  [polybar]="/etc/polybar/ (global)"
 	  [starship]="~/.bashrc (se inicializa aqui)"
 	  [tmux]="$HOME/.tmux.conf"
@@ -281,6 +282,48 @@ while true; do
 	clear_screen
 		;;
 	6)
+	echo "A continuación se van a desinstalar los siguientes programas:"
+	for i in ${programas[@]}; do
+		echo -e " -$i"
+	done
+	for i in ${programas_no_apt[@]}; do
+		echo -e " -$i"
+	done
+
+	if continue_check; then
+		#sudo apt remove ${programas[@]}
+		echo "No se han eliminado los ficheros de configuración."
+		echo "Si desea eliminarlos, acceda a la opción 5 del menú."
+		echo
+
+		# Backup .bashrc
+		if [ -f ~/.bashrc.bak ]; then
+			echo "CUIDADO. Ya existe un backup del fichero .bashrc"
+			echo "Continuar implicará PERDER esta copia de seguridad."
+			if ! continue_check; then
+				echo "Se ha cancelado la operación."
+				clear_screen
+				break
+			fi
+			echo
+		fi
+		if cp ~/.bashrc ~/.bashrc.bak; then
+			echo "Se ha generado un backup del fichero bashrc en ~/.bashrc.bak"
+			echo "Si ha perdido alguna configuración, asegúrese de restaurarla a través de este backup."
+			echo
+		fi
+
+		# Desinstalar Starship
+		echo "Desinstalando Starship..."
+		if sh -c 'rm -f "$(command -v 'starship') 2>/dev/null"' \
+		  && grep -vwe 'eval "$(starship init bash)"' -e '#Configuración de starship' ~/.bashrc > /tmp/bashrc.tmp \
+		  && mv /tmp/bashrc.tmp ~/.bashrc; then
+			echo "Se ha desinstalado Starship correctamente."
+		fi
+	fi
+
+		;;
+	7)
 		echo "Saliendo"
 		exit 0
 		;;
